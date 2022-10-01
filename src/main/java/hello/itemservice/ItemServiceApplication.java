@@ -22,7 +22,8 @@ import javax.sql.DataSource;
 //@Import(SpringDataJpaConfig.class)
 //@Import(QueryDslConfig.class)
 @Import(V2Config.class)
-@SpringBootApplication(scanBasePackages = "hello.itemservice.web")
+//@SpringBootApplication(scanBasePackages = "hello.itemservice.web")
+@SpringBootApplication(scanBasePackages = "hello.itemservice.datajpa")
 @Slf4j
 public class ItemServiceApplication {
 
