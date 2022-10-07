@@ -1,6 +1,9 @@
 package hello.itemservice.datajpa.repository;
 
+import hello.itemservice.datajpa.dto.MemberDto;
 import hello.itemservice.datajpa.entity.Member;
+import hello.itemservice.datajpa.entity.Team;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +16,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 
+@Slf4j
 @Transactional
 @SpringBootTest
 class MemberRepositoryTest {
 
     @Autowired MemberRepository memberRepository;
+    @Autowired TeamRepository teamRepository;
 
     @Test
     public void testMember() {
@@ -80,5 +85,20 @@ class MemberRepositoryTest {
 
         List<Member> result = memberRepository.findUser("AAA", 10);
         assertThat(result.get(0)).isEqualTo(m1);
+    }
+
+    @Test
+    public void findMemberDto() {
+        Team teamA = new Team("teamA");
+        teamRepository.save(teamA);
+
+        Member member = new Member("AAA", 10);
+        member.setTeam(teamA);
+        memberRepository.save(member);
+
+        List<MemberDto> memberDto = memberRepository.findMemberDto();
+        for (MemberDto dto : memberDto) {
+            log.info("dto = {}", dto);
+        }
     }
 }
