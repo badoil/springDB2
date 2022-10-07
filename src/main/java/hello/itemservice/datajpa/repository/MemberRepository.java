@@ -3,6 +3,8 @@ package hello.itemservice.datajpa.repository;
 import hello.itemservice.datajpa.dto.MemberDto;
 import hello.itemservice.datajpa.entity.Member;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -18,4 +20,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("select new hello.itemservice.datajpa.dto.MemberDto(m.id, m.username, t.name) from Member m join m.team t")
     List<MemberDto> findMemberDto();
+
+
+    Page<Member> findByAge(int age, Pageable pageable);
 }
