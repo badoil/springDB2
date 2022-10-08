@@ -1,5 +1,6 @@
 package hello.itemservice.datajpa.dto;
 
+import hello.itemservice.datajpa.entity.Member;
 import lombok.Data;
 
 @Data
@@ -13,5 +14,11 @@ public class MemberDto {
         this.id = id;
         this.username = username;
         this.teamName = teamName;
+    }
+
+    public MemberDto(Member m) {
+        this.id = m.getId();
+        this.username = m.getUsername();
+
     }
 }
