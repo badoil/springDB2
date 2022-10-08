@@ -8,9 +8,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
+import java.util.Optional;
+import java.util.UUID;
 
 
 //@Import(MemoryConfig.class)
@@ -25,6 +29,7 @@ import javax.sql.DataSource;
 //@SpringBootApplication(scanBasePackages = "hello.itemservice.web")
 @SpringBootApplication(scanBasePackages = "hello.itemservice.datajpa")
 @Slf4j
+@EnableJpaAuditing
 public class ItemServiceApplication {
 
 	public static void main(String[] args) {
@@ -35,6 +40,11 @@ public class ItemServiceApplication {
 	@Profile("local")
 	public TestDataInit testDataInit(ItemRepository itemRepository) {
 		return new TestDataInit(itemRepository);
+	}
+
+	@Bean
+	public AuditorAware<String> auditorProvider() {
+		return () -> Optional.of(UUID.randomUUID().toString());
 	}
 
 //	@Bean
