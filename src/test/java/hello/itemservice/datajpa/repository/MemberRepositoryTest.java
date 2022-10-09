@@ -226,4 +226,28 @@ class MemberRepositoryTest {
         System.out.println("findMember.createdBy = " + findMember.getCreatedBy());
         System.out.println("findMember.updatedBy = " + findMember.getLastModifiedBy());
     }
+
+    @Test
+    public void nativeQuery() {
+        //given
+        Team t1 = new Team("teamA");
+        em.persist(t1);
+
+        Member m1 = new Member("member1");
+        Member m2 = new Member("member1");
+        em.persist(m1);
+        em.persist(m2);
+
+        em.flush();
+        em.clear();
+
+        Page<MemberProjection> result = memberRepository.findByNativeProjection(PageRequest.of(0, 10));//@PrePersist
+        List<MemberProjection> contents = result.getContent();
+
+        for (MemberProjection content : contents) {
+            System.out.println("content.getUsername = " + content.getUsername());
+            System.out.println("content.getTeamName = " + content.getTeamName());
+
+        }
+    }
 }

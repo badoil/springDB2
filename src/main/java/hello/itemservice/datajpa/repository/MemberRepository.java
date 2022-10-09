@@ -56,4 +56,9 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
 
     @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"))
     Member findReadOnlyByUsername(String username);
+
+    @Query(value = "SELECT m.member_id as id, m.username, t.name as teamName FROM member m left join team t",
+            countQuery = "SELECT count(*) from member",
+            nativeQuery = true)
+    Page<MemberProjection> findByNativeProjection(Pageable pageable);
 }

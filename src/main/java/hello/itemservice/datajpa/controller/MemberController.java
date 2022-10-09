@@ -23,21 +23,21 @@ public class MemberController {
         return member.getUsername();
     }
 
-    @GetMapping("/members")
-    public Page<Member> list(@PageableDefault(size = 10) Pageable pageable) {
+    @GetMapping("/membersA")
+    public Page<Member> listA(@PageableDefault(size = 10) Pageable pageable) {
         Page<Member> page = memberRepository.findAll(pageable);
         return page;
     }
 
-    @GetMapping("/members")
-    public Page<MemberDto> list2(Pageable pageable) {
+    @GetMapping("/membersB")
+    public Page<MemberDto> listB(Pageable pageable) {
         Page<Member> page = memberRepository.findAll(pageable);
         Page<MemberDto> pageDto = page.map(MemberDto::new);
         return pageDto;
     }
 
-    @GetMapping("/members")
-    public Page<MemberDto> list3(Pageable pageable) {
+    @GetMapping("/membersC")
+    public Page<MemberDto> listC(Pageable pageable) {
         return memberRepository.findAll(pageable).map(MemberDto::new);
     }
 }
