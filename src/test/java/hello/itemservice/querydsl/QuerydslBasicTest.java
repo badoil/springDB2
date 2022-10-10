@@ -1,6 +1,7 @@
 package hello.itemservice.querydsl;
 
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import hello.itemservice.datajpa.entity.Member;
 import hello.itemservice.datajpa.entity.QMember;
@@ -109,6 +110,18 @@ public class QuerydslBasicTest {
         assertThat(member5.getUsername()).isEqualTo("member5");
         assertThat(member6.getUsername()).isEqualTo("member6");
         assertThat(memberNull.getUsername()).isNull();
+    }
+
+    @Test
+    public void paging1() {
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .orderBy(member.username.desc())
+                .offset(1)      //0부터 시작(zero index)
+                .limit(2)       //최대 2건 조회
+                .fetch();
+
+        assertThat(result.size()).isEqualTo(2);
     }
 }
 
