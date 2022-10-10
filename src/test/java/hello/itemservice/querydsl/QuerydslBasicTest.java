@@ -3,6 +3,7 @@ package hello.itemservice.querydsl;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import hello.itemservice.datajpa.entity.Member;
 import hello.itemservice.datajpa.entity.QMember;
@@ -20,6 +21,7 @@ import javax.persistence.PersistenceUnit;
 
 import java.util.List;
 
+import static com.querydsl.jpa.JPAExpressions.*;
 import static hello.itemservice.datajpa.entity.QMember.member;
 import static hello.itemservice.datajpa.entity.QTeam.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -250,6 +252,52 @@ public class QuerydslBasicTest {
                 .fetchOne();
 
         boolean loaded = emf.getPersistenceUnitUtil().isLoaded(findMember.getTeam());
-        assertThat(loaded).as("페치 조인 적용").isTrue(); }
+        assertThat(loaded).as("페치 조인 적용").isTrue();
+    }
+
+
+    /**
+     *나이가 평균 나이 이상인 회원
+     */
+    @Test
+    public void subqueryGoe() throws Exception {
+        QMember memberSub = new QMember("memberSub");
+
+        List<Member> result = queryFactory
+                .select(member)
+                .from(member)
+                .where(member.age.goe(
+                        select(memberSub.age.avg())
+                                .from(memberSub)
+                ))
+                .fetch();
+
+        assertThat(result).extracting("age")
+                .containsExactly(30,40);
+
+    }
+
+    @Test
+    public void subquerySelect() throws Exception {
+        QMember memberSub = new QMember("memberSub");
+
+        List<Tuple> fetch = queryFactory
+                .select(member.username,
+                        select(memberSub.age.avg())
+                                .from(memberSub)
+                )
+                .from(member)
+                .fetch();
+
+        for (Tuple tuple : fetch) {
+            System.out.println("username = " + tuple.get(member.username));
+
+            System.out.println("age = " + tuple.get(
+                            select(memberSub.age.avg())
+                            .from(memberSub))
+            );
+        }
+    }
+
 }
 
