@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import static hello.itemservice.datajpa.entity.QMember.member;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -58,9 +59,12 @@ public class QuerydslBasicTest {
 
     @Test
     public void startQuerydsl() {
-        QMember m = new QMember("m");
 
-        Member member1 = queryFactory.select(m).from(m).where(m.username.eq("member1")).fetchOne();
+        Member member1 = queryFactory
+                .select(member)
+                .from(member)
+                .where(member.username.eq("member1"))
+                .fetchOne();
 
         assertThat(member1.getUsername()).isEqualTo("member1");
     }
