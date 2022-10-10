@@ -166,7 +166,7 @@ public class QuerydslBasicTest {
     public void group() throws Exception {
         // given
         List<Tuple> result = queryFactory
-                .select(team, member.age)
+                .select(team.name, member.age.avg())
                 .from(member)
                 .join(member.team, team)
                 .groupBy(team.name)
@@ -180,6 +180,24 @@ public class QuerydslBasicTest {
         assertThat(teamB.get(team.name)).isEqualTo("teamB");
         assertThat(teamB.get(member.age.avg())).isEqualTo(35);
 
+    }
+
+    /**
+     *팀A에 소속된 모든 회원
+     */
+    @Test
+    public void join() throws Exception {
+        QMember member = QMember.member;
+        QTeam team = QTeam.team;
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .join(member.team, team)
+                .where(team.name.eq("teamA"))
+                .fetch();
+
+        assertThat(result)
+                .extracting("username")
+                .containsExactly("member1", "member2");
     }
 }
 
