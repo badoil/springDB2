@@ -6,6 +6,7 @@ import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import hello.itemservice.datajpa.entity.Member;
 import hello.itemservice.datajpa.entity.QMember;
+import hello.itemservice.datajpa.entity.QTeam;
 import hello.itemservice.datajpa.entity.Team;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import javax.persistence.PersistenceContext;
 import java.util.List;
 
 import static hello.itemservice.datajpa.entity.QMember.member;
+import static hello.itemservice.datajpa.entity.QTeam.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -163,11 +165,21 @@ public class QuerydslBasicTest {
     @Test
     public void group() throws Exception {
         // given
-        
-        
-        // when
-        
-        // then
+        List<Tuple> result = queryFactory
+                .select(team, member.age)
+                .from(member)
+                .join(member.team, team)
+                .groupBy(team.name)
+                .fetch();
+        Tuple teamA = result.get(0);
+        Tuple teamB = result.get(1);
+
+        assertThat(teamA.get(team.name)).isEqualTo("teamA");
+        assertThat(teamA.get(member.age.avg())).isEqualTo(15);
+
+        assertThat(teamB.get(team.name)).isEqualTo("teamB");
+        assertThat(teamB.get(member.age.avg())).isEqualTo(35);
+
     }
 }
 
