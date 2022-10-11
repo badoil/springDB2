@@ -1,7 +1,10 @@
 package hello.itemservice.datajpa.repository;
 
 
+import com.querydsl.core.QueryFactory;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import hello.itemservice.datajpa.entity.Member;
+import hello.itemservice.datajpa.entity.QMember;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -9,11 +12,20 @@ import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 
+import static hello.itemservice.datajpa.entity.QMember.*;
+
 @Repository
 public class MemberJpaRepository {
 
     @PersistenceContext
     private EntityManager em;
+
+    private JPAQueryFactory queryFactory;
+
+    public MemberJpaRepository(EntityManager em) {
+        this.em = em;
+        this.queryFactory = new JPAQueryFactory(em);
+    }
 
     public Member save(Member member) {
         em.persist(member);
@@ -27,6 +39,13 @@ public class MemberJpaRepository {
     public List<Member> findAll() {
         return em.createQuery("select m from Member m", Member.class)
                 .getResultList();
+    }
+
+    // findAll 의 querydsl 버전
+    public List<Member> findAllQuerydsl() {
+        return queryFactory
+                .selectFrom(member)
+                .fetch();
     }
 
     public Optional<Member> findById(Long id) {
