@@ -3,7 +3,9 @@ package hello.itemservice.datajpa.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryFactory;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import hello.itemservice.datajpa.dto.MemberSearchCond;
 import hello.itemservice.datajpa.dto.MemberTeamDto;
@@ -117,5 +119,40 @@ public class MemberJpaRepository {
                 .where(builder)
                 .fetch();
 
+    }
+
+    public List<MemberTeamDto> search(MemberSearchCond condition) {
+
+        return queryFactory
+                .select(new QMemberTeamDto(
+                        member.id.as("memberId"),
+                        member.username,
+                        team.name.as("teamName"),
+                        member.age,
+                        team.id.as("teamId")
+                ))
+                .from(member)
+                .leftJoin(member.team, team)
+                .where(usernameEq(condition.getUsername()),
+                        teamnameEq(condition.getTeamName()),
+                        ageGoe(condition.getAgeGoe()),
+                        ageLoe(condition.getAgeLoe()))
+                .fetch();
+    }
+
+    private BooleanExpression ageLoe(Integer ageLoe) {
+        return ageLoe != null ? member.age.loe(ageLoe): null;
+    }
+
+    private BooleanExpression ageGoe(Integer ageGoe) {
+        return ageGoe != null ? member.age.goe(ageGoe): null;
+    }
+
+    private BooleanExpression teamnameEq(String teamName) {
+        return StringUtils.hasText(teamName) ? team.name.eq(teamName): null;
+    }
+
+    private BooleanExpression usernameEq(String username) {
+        return StringUtils.hasText(username) ? member.username.eq(username) : null;
     }
 }
