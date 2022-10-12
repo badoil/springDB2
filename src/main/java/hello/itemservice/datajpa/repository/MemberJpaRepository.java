@@ -1,11 +1,17 @@
 package hello.itemservice.datajpa.repository;
 
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryFactory;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import hello.itemservice.datajpa.dto.MemberSearchCond;
+import hello.itemservice.datajpa.dto.MemberTeamDto;
+import hello.itemservice.datajpa.dto.QMemberTeamDto;
 import hello.itemservice.datajpa.entity.Member;
 import hello.itemservice.datajpa.entity.QMember;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -13,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static hello.itemservice.datajpa.entity.QMember.*;
+import static hello.itemservice.datajpa.entity.QTeam.team;
 
 @Repository
 public class MemberJpaRepository {
@@ -79,5 +86,36 @@ public class MemberJpaRepository {
         return em.createQuery("update Member m set m.age = m.age+1 where m.age >= :age")
                 .setParameter("age", age)
                 .executeUpdate();
+    }
+
+    public List<MemberTeamDto> searchByBuilder(MemberSearchCond condition) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+        if (StringUtils.hasText(condition.getUsername())) {
+            builder.and(member.username.eq(condition.getUsername()));
+        }
+        if (StringUtils.hasText(condition.getTeamName())) {
+            builder.and(team.name.eq(condition.getTeamName()));
+        }
+        if (condition.getAgeGoe() != null) {
+            builder.and(member.age.goe(condition.getAgeGoe()));
+        }
+        if (condition.getAgeLoe() != null) {
+            builder.and(member.age.loe(condition.getAgeLoe()));
+        }
+
+        return queryFactory
+                .select(new QMemberTeamDto(
+                        member.id.as("memberId"),
+                        member.username,
+                        team.name.as("teamName"),
+                        member.age,
+                        team.id.as("teamId")
+                        ))
+                .from(member)
+                .leftJoin(member.team, team)
+                .where(builder)
+                .fetch();
+
     }
 }
