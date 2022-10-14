@@ -1,6 +1,8 @@
 package hello.itemservice.datajpa.repository;
 
 import hello.itemservice.datajpa.dto.MemberDto;
+import hello.itemservice.datajpa.dto.MemberSearchCond;
+import hello.itemservice.datajpa.dto.MemberTeamDto;
 import hello.itemservice.datajpa.entity.Member;
 import hello.itemservice.datajpa.entity.Team;
 import lombok.extern.slf4j.Slf4j;
@@ -249,5 +251,30 @@ class MemberRepositoryTest {
             System.out.println("content.getTeamName = " + content.getTeamName());
 
         }
+    }
+
+    @Test
+    public void searchTest2() {
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        em.persist(teamA);
+        em.persist(teamB);
+
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamA);
+        Member member3 = new Member("member3", 30, teamB);
+        Member member4 = new Member("member4", 40, teamB);
+        em.persist(member1);
+        em.persist(member2);
+        em.persist(member3);
+        em.persist(member4);
+
+        MemberSearchCond condition = new MemberSearchCond();
+        condition.setAgeGoe(35);
+        condition.setAgeLoe(40);
+        condition.setTeamName("teamB");
+
+        List<MemberTeamDto> result = memberRepository.search(condition);
+        assertThat(result).extracting("username").containsExactly("member4");
     }
 }
