@@ -2,6 +2,7 @@ package hello.itemservice.datajpa.repository;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import hello.itemservice.datajpa.dto.MemberSearchCond;
 import hello.itemservice.datajpa.dto.MemberTeamDto;
@@ -10,6 +11,7 @@ import hello.itemservice.datajpa.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -111,7 +113,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom{
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        long total = queryFactory
+        JPAQuery<Member> countQuery = queryFactory
                 .select(member)
                 .from(member)
 //                .leftJoin(team)       // 조인이 안들어가도 되는 카운트 쿼리가 있으면 최적화를 위해 이렇게 쪼개는 것이 좋음
@@ -119,9 +121,13 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom{
                         teamNameEq(condition.getTeamName()),
                         ageGoe(condition.getAgeGoe()),
                         ageLoe(condition.getAgeLoe())
-                )
-                .fetchCount();
+                );
 
-        return new PageImpl<>(content, pageable, total);
+        //count 쿼리가 생략 가능한 경우 생략해서 처리
+        //페이지 시작이면서 컨텐츠 사이즈가 페이지 사이즈보다 작을 때
+        //마지막 페이지 일 때 (offset + 컨텐츠 사이즈를 더해서 전체 사이즈 구함)
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount);
+
+//        return new PageImpl<>(content, pageable, total);
     }
 }
